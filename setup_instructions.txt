@@ -1,0 +1,25 @@
+How to Complete Setup for AI Resume Analyzer
+
+1. Install Microsoft Visual C++ Redistributable:
+   - Download: https://aka.ms/vs/16/release/vc_redist.x64.exe
+   - Run the installer and follow the on-screen instructions
+   - Restart your computer after installation
+
+2. Get a Google API Key for Gemini:
+   - Go to: https://makersuite.google.com/app/apikey
+   - Sign in with your Google account
+   - Create a new API key
+   - Copy the API key
+
+3. Set up your .env file:
+   - Create a new file named ".env" in your project folder
+   - Add this line to the file: GOOGLE_API_KEY=your_actual_api_key_here
+   - Replace "your_actual_api_key_here" with the API key you copied
+   - Save the file
+
+4. Run the original application:
+   - After completing the above steps, run: python AI.py
+   - Access the application at: http://127.0.0.1:5000
+
+If you still encounter issues, ensure all required packages are installed:
+- Run: pip install -r requirements.txt 

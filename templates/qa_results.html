@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Answer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .qa-container {
+            margin-top: 20px;
+        }
+        .question {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .answer {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            white-space: pre-line;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Answer</h1>
+    <div class="qa-container">
+        <div class="question">
+            <strong>Question:</strong> {{ query }}
+        </div>
+        <div class="answer">
+            <strong>Answer:</strong> {{ result }}
+        </div>
+    </div>
+    <a href="{{ url_for('ask_query') }}" class="btn">Ask Another Question</a>
+    <button id="improve-btn" class="btn" style="background-color:#007bff;">Analyze New Resume & Download PDF</button>
+    <a href="{{ url_for('index') }}" class="btn">Analyze New Resume</a>
+    <div id="improved-resume-container" style="margin-top:30px;"></div>
+    <script>
+        // You may need to pass these from Flask context in production
+        const missingSkills = {{ missing_skills|tojson|safe if missing_skills is defined else '[]' }};
+        const resumeText = {{ resume_text|tojson|safe if resume_text is defined else '""' }};
+        const jobDescription = {{ job_description|tojson|safe if job_description is defined else '""' }};
+        document.getElementById('improve-btn').onclick = async function() {
+            const btn = this;
+            btn.disabled = true;
+            btn.textContent = 'Analyzing...';
+            const resp = await fetch('/improve_resume', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ resume_text: resumeText, missing_skills: missingSkills, job_description: jobDescription })
+            });
+            const data = await resp.json();
+            const improved = data.improved_resume;
+            document.getElementById('improved-resume-container').innerHTML = `
+                <h2>Improved Resume</h2>
+                <pre style="background:#f8f9fa;padding:15px;border-radius:6px;">${improved}</pre>
+                <button id='download-pdf-btn' class='btn' style='background-color:#dc3545;'>Download as PDF</button>
+            `;
+            document.getElementById('download-pdf-btn').onclick = async function() {
+                const pdfResp = await fetch('/download_pdf', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ resume_text: improved })
+                });
+                const blob = await pdfResp.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'improved_resume.pdf';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            };
+            btn.disabled = false;
+            btn.textContent = 'Analyze New Resume & Download PDF';
+        };
+    </script>
+</body>
+</html> 

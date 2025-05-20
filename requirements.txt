@@ -1,0 +1,10 @@
+flask
+python-dotenv
+PyPDF2
+langchain
+langchain-google-genai
+langchain-community
+langchain-core
+langchain-huggingface
+faiss-cpu
+sentence-transformers 
